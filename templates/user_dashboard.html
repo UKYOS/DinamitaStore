@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Usuario - DinamitaStore</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <title>Dinámita Store</title>
+   
+
+</head>
+<body>
+    <div class="dashboard-container">
+        <h2>Bienvenido, {{ session['username'] }} (Usuario)</h2>
+        <h3>Lista de libros disponibles:</h3>
+        <ul id="book-list">
+            <!-- Aquí se mostrarán los libros disponibles en la base de datos -->
+        </ul>
+        <button><a href="/logout">Cerrar sesión</a></button>
+    </div>
+
+    <ul>
+        {% for book in books %}
+        <li>
+            <strong>{{ book.title }}</strong> por {{ book.author }} - {{ book.genre }}
+            <br>
+            Estado: <span style="color: {{ 'green' if book.status == 'available' else 'red' }}">
+                {{ 'Disponible' if book.status == 'available' else 'Alquilado por ' ~ book.borrowed_by }}
+            </span>
+            <br>
+            <form action="/borrow_book/{{ book._id }}" method="POST" style="display:inline;">
+                <button type="submit" {% if book.status != 'available' %}disabled{% endif %}>Alquilar</button>
+            </form>
+        </li>
+        {% endfor %}
+
+    </ul>
+    <h3>Libros que has alquilado:</h3>
+<ul>
+    {% for book in borrowed_books %}
+    <li>
+        <strong>{{ book.title }}</strong> por {{ book.author }}
+    </li>
+    {% endfor %}
+</ul>
+
+<form action="/logout" method="POST">
+    <button type="submit">Cerrar sesión</button>
+</form>
+
+
+</body>
+</html>

@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1" name="viewport" />
+  <title>Login y Registro - DinamitaStore</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}" />
+  <script src="https://cdn.tailwindcss.com"></script>
+
+</head>
+<body>
+  <div class="container" role="main">
+    <!-- Left panel -->
+     
+    <section class="left-panel" aria-label="Login and registration panel">
+      <div class="logo-container">
+        <div class="logo-circle"></div>
+        <div class="logo-text">DinamitaStore</div>
+      </div>
+      <img
+        src="{{ url_for('static', filename='img/users.png') }}"
+        alt="Logo"
+        class="profile-icon"
+        width="100"
+        height="100"
+      />
+    <!-- Flash Messages -->
+       <!-- Contenedor para mensajes flash -->
+    <div id="flashMessages">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="alert-container">
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+            </div>
+        {% endif %}
+        {% endwith %}
+    </div>
+  
+      <nav class="tabs" role="tablist" aria-label="Login and Register Tabs">
+        <button
+          id="loginBtn"
+          class="tab-button active"
+          role="tab"
+          aria-selected="true"
+          aria-controls="loginForm"
+          tabindex="0"
+        >Iniciar sesión</button>
+        <button
+          id="registerBtn"
+          class="tab-button"
+          role="tab"
+          aria-selected="false"
+          aria-controls="registerForm"
+          tabindex="-1"
+        >Registrarse</button>
+      </nav>
+
+      <!-- Login Form -->
+
+      <form action="/login" id="loginForm" class="login-form" role="tabpanel" aria-labelledby="loginBtn" novalidate method="POST">
+        <div class="input-group">
+          <input type="text" name="username" placeholder="Username" aria-label="Username" required />
+          <i class="fas fa-user input-icon" aria-hidden="true"></i>
+        </div>
+        <div class="input-group">
+          <input type="password" name="password" placeholder="Password" aria-label="Password" required />
+          <i class="fas fa-lock input-icon" aria-hidden="true"></i>
+        </div>
+        <button type="submit">LOGIN</button>
+      </form>
+
+      <!-- Register Form -->
+      <form action="/register" id="registerForm" class="register-form" role="tabpanel" aria-labelledby="registerBtn" hidden novalidate method="POST">
+        <div class="input-group">
+          <input type="text" name="username" placeholder="Username" aria-label="Username" required />
+          <i class="fas fa-user input-icon" aria-hidden="true"></i>
+        </div>
+        <div class="input-group">
+          <input type="email" name="email" placeholder="Email" aria-label="Email" required />
+          <i class="fas fa-envelope input-icon" aria-hidden="true"></i>
+        </div>
+        <div class="input-group">
+          <input type="password" name="password" placeholder="Password" aria-label="Password" required />
+          <i class="fas fa-lock input-icon" aria-hidden="true"></i>
+        </div>
+        <button type="submit">REGISTER</button>
+      </form>
+      <div class="forgot-password">Forgot your password?</div>
+      <div class="dots" aria-hidden="true">
+        <span class="dot"></span>
+        <span class="dot active"></span>
+        <span class="dot"></span>
+      </div>
+    </section>
+
+    <!-- Right panel -->
+    <section class="right-panel" aria-label="Welcome message and background image">
+      <img
+        src="https://storage.googleapis.com/a1aa/image/c87ad231-db88-43d2-4096-7d1177b1efea.jpg"
+        alt="Abstract purple and blue swirl gradient shape"
+        class="bg-shape"
+        width="400"
+        height="300"
+        aria-hidden="true"
+      />
+      <div class="right-panel-content">
+        <h1>Bienvenido.</h1>
+        <p>
+          Descubre los mejores productos en DinamitaStore, ¡tu tienda en línea de confianza!
+        </p>
+      </div>
+    </section>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/login.js') }}"></script>
+</body>
+</html>

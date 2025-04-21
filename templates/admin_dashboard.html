@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Admin - DinamitaStore</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <title>Dinámita Store</title>
+   
+
+</head>
+<body>
+    <div class="dashboard-container">
+        <h2>Bienvenido, {{ session['username'] }} (Administrador)</h2>
+        <nav>
+            <ul>
+                <li><a href="#">Agregar libro</a></li>
+                <li><a href="#">Eliminar libro</a></li>
+                <li><a href="#">Ver usuarios</a></li>
+            </ul>
+        </nav>
+        <button><a href="/logout">Cerrar sesión</a></button>
+    </div>
+<!-- Agregar libro -->
+<h3>Agregar un nuevo libro:</h3>
+<form action="/add_book" method="POST">
+    <div class="input-group">
+        <label for="title">Título:</label>
+        <input type="text" id="title" name="title" required>
+    </div>
+    <div class="input-group">
+        <label for="author">Autor:</label>
+        <input type="text" id="author" name="author" required>
+    </div>
+    <div class="input-group">
+        <label for="genre">Género:</label>
+        <input type="text" id="genre" name="genre" required>
+    </div>
+    <button type="submit">Agregar libro</button>
+</form>
+
+<h3>Lista de libros disponibles:</h3>
+<ul id="book-list">
+    {% for book in books %}
+    <li>
+        <strong>{{ book.title }}</strong> por {{ book.author }} - {{ book.genre }}
+        <form action="/delete_book/{{ book._id }}" method="POST" style="display:inline;">
+            <button type="submit">Eliminar</button>
+        </form>
+    </li>
+    {% endfor %}
+</ul>
+
+<form action="/logout" method="POST">
+    <button type="submit">Cerrar sesión</button>
+</form>
+
+
+</body>
+</html>
