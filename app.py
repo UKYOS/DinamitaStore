@@ -8,6 +8,7 @@ from google.oauth2 import service_account
 from werkzeug.utils import secure_filename
 import json
 import os
+from functools import wraps
 
 # Cargar variables del archivo .env (solo aplica en entorno local)
 load_dotenv()
@@ -28,6 +29,7 @@ else:
 
 # Crear el cliente de almacenamiento
 client = storage.Client(credentials=credentials, project=project_id)
+
 # Crear la app y configurar la base de datos
 app = Flask(__name__)
 app.config["MONGO_URI"] = os.getenv("MONGO_URI")
@@ -37,12 +39,26 @@ app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
 mongo = PyMongo(app)
 bcrypt = Bcrypt(app)
 
+# Decorador para rutas protegidas
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'username' not in session:  # Si no está en sesión
+            return redirect(url_for('home'))  # Redirigir a la página principal (login)
+        return f(*args, **kwargs)
+    return decorated_function
+
 # Ruta de inicio y login
 @app.route('/')
 def home():
+    if 'username' in session:
+        if session['role'] == 'admin':
+            return redirect(url_for('admin_dashboard'))
+        elif session['role'] == 'user':
+            return redirect(url_for('user_dashboard'))
     return render_template('login.html')
 
-#Rutas de comprobacion de login
+# Rutas de comprobación de login
 @app.route('/login', methods=['POST'])
 def login():
     username = request.form.get('username')
@@ -71,7 +87,7 @@ def login():
         return redirect(url_for('home'))
     
 
-#Rutas de comprobacion del registro
+# Rutas de comprobación del registro
 @app.route('/register', methods=['POST'])
 def register():
     username = request.form.get('username')
@@ -109,28 +125,28 @@ def register():
     return redirect(url_for('home'))
 
 
-
 # Ruta del dashboard de admin
 @app.route('/admin_dashboard')
+@login_required
 def admin_dashboard():
-    if 'username' not in session or session['role'] != 'admin':
+    if session['role'] != 'admin':
         return redirect(url_for('home'))
     return render_template('admin_dashboard.html')
 
-
-# Rutas del dashboard de admin
-
 @app.route('/home-admin')
+@login_required
 def home_admin():
     return render_template('admin_dashboard.html')
 
 @app.route('/registrar-libro')
+@login_required
 def registrar_libro():
     return render_template('registrar-libro.html')
 
 @app.route('/editar-libros')
+@login_required
 def editar_libros():
-    if 'username' not in session or session.get('role') != 'admin':
+    if session.get('role') != 'admin':
         return redirect(url_for('home'))
 
     books = list(mongo.db.books.find())
@@ -139,8 +155,9 @@ def editar_libros():
 
 # Ruta del dashboard de usuario
 @app.route('/user_dashboard')
+@login_required
 def user_dashboard():
-    if 'username' not in session or session['role'] != 'user':
+    if session['role'] != 'user':
         return redirect(url_for('home'))
 
     books = list(mongo.db.books.find())
@@ -148,15 +165,16 @@ def user_dashboard():
 
     return render_template('user_dashboard.html', books=books, borrowed_books=borrowed_books)
 
+
 # Cerrar sesión
 @app.route('/logout', methods=['POST'])
 def logout():
-    session.clear()
+    session.clear()  # Borra todos los datos de la sesión
     flash('Sesión cerrada exitosamente', 'info')
     return redirect(url_for('home'))
 
-# Agregar libro (admin)
 
+# Subir imagen a Google Cloud Storage
 def upload_image_to_gcs(file, title, author):
     bucket = client.bucket(bucket_name)
     
@@ -169,11 +187,11 @@ def upload_image_to_gcs(file, title, author):
     
     return blob.public_url
 
-
-
+# Agregar libro
 @app.route('/add_book', methods=['POST'])
+@login_required
 def add_book():
-    if 'username' not in session or session.get('role') != 'admin':
+    if session.get('role') != 'admin':
         return redirect(url_for('home'))
 
     title = request.form.get('title')
@@ -211,23 +229,23 @@ def add_book():
     return render_template('registrar-libro.html', books=books)
 
 
-#Editar libros
-
+# Editar libros
 @app.route('/mostrar_libros_admin', methods=['GET'])
-def mostrar_libros_admin():  # <-- Este nombre debe ser único
+def mostrar_libros_admin():
     if 'username' not in session or session.get('role') != 'admin':
         return redirect(url_for('home'))
 
     books = mongo.db.books.find()
-    return render_template('editar-libros.html', books=books)
-
+    return render_template('editar-libro.html', books=books)
 
 @app.route('/editar_libro/<book_id>', methods=['GET', 'POST'])
+@login_required
 def editar_libro(book_id):
-    if 'username' not in session or session.get('role') != 'admin':
+    if session.get('role') != 'admin':
         return redirect(url_for('home'))
-    
+
     book = mongo.db.books.find_one({'_id': ObjectId(book_id)})
+
     if request.method == 'POST':
         title = request.form.get('title')
         author = request.form.get('author')
@@ -238,8 +256,9 @@ def editar_libro(book_id):
         existing_book = mongo.db.books.find_one({'title': title, 'author': author})
         if existing_book and str(existing_book['_id']) != book_id:
             flash('Ya existe un libro con ese título y autor 📚', 'error')
-            return redirect(url_for('editar_libro', book_id=book_id))
+            return redirect(url_for('editar_libro', book_id=book_id))  # Redirigir al formulario para mostrar el error
 
+        # Actualización de los datos del libro
         mongo.db.books.update_one(
             {'_id': ObjectId(book_id)},
             {'$set': {
@@ -251,9 +270,10 @@ def editar_libro(book_id):
         )
 
         flash('Libro actualizado con éxito 🎉', 'success')
-        return redirect(url_for('editar_libros'))
+        return redirect(url_for('mostrar_libros_admin'))  # Redirigir a la vista de libros admin
     
-    return render_template('editar-libro-form.html', book=book)
+    return render_template('form-edit-book.html', book=book)
+
 
 # Eliminar libro 
 @app.route('/eliminar_libro/<book_id>', methods=['GET'])
@@ -266,25 +286,6 @@ def eliminar_libro(book_id):
     return redirect(url_for('editar_libros'))
 
 
-# Alquilar libro (usuario)
-@app.route('/borrow_book/<book_id>', methods=['POST'])
-def borrow_book(book_id):
-    if 'username' not in session or session['role'] != 'user':
-        return redirect(url_for('home'))
-
-    user = mongo.db.users.find_one({'username': session['username']})
-    book = mongo.db.books.find_one({'_id': ObjectId(book_id)})  
-
-    # Lógica para alquilar el libro
-    if book and user:
-        mongo.db.books.update_one(
-            {'_id': ObjectId(book_id)},
-            {'$set': {'status': 'borrowed', 'borrowed_by': user['username']}}
-        )
-        flash('Libro alquilado con éxito', 'success')
-
-    return redirect(url_for('user_dashboard'))
-
-# Ejecutar la app
-if __name__ == "__main__":
+# Iniciar la aplicación
+if __name__ == '__main__':
     app.run(debug=True)

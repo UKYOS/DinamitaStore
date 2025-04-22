@@ -134,3 +134,81 @@
     gap: 10px;
   }
   
+  .navbar a {
+    color: #fff;
+    font-size: 18px;
+    text-decoration: none;
+    margin-left: 35px;
+    transition: .3s;
+}
+
+.navbar .btn {
+    margin-left: 30px; /* Aquí ajustas el espacio entre el botón y el nav */
+}
+
+.navbar a:hover {
+    color: #0ef;
+}
+
+
+/* Añadir un botón de menú para pantallas pequeñas */
+.navbar-toggle {
+    display: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    flex-direction: column;
+    padding: 10px;
+    justify-content: center;
+    align-items: center;
+    z-index: 1001; /* Asegúrate de que esté encima de los demás elementos */
+}
+
+.navbar-icon {
+    width: 30px;
+    height: 4px;
+    background-color: #fff;
+    margin: 5px 0;
+}
+
+/* Hacer el navbar responsive */
+@media (max-width: 768px) {
+    /* Escondemos los enlaces en pantallas pequeñas */
+    .navbar {
+        display: none;
+        flex-direction: column;
+        width: 100%;
+        text-align: center;
+        margin-top: 10px;
+        padding: 20px;
+        background-color: rgba(0, 0, 0, 0.8); /* Fondo oscuro para mejor contraste */
+    }
+
+    .navbar a {
+        margin-left: 0;
+        margin-top: 15px;
+        font-size: 20px;
+    }
+
+    /* Mostramos el botón de menú */
+    .navbar-toggle {
+        display: flex;
+    }
+
+    /* Mostrar el navbar cuando se haga clic en el menú hamburguesa */
+    .navbar.open {
+        display: flex;  /* Hace visible el navbar */
+        transition: all 0.3s ease-in-out;
+    }
+}
+
+.content {
+    padding-top: 160px; /* Ajusta el contenido para que no se solape con el header fijo */
+}
+
+.card {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    border-radius: 15px;
+    backdrop-filter: blur(5px);
+}

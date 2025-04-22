@@ -1,0 +1,36 @@
+<!-- Modal de edición -->
+<div class="modal fade" id="editarModal{{ book['_id'] }}" tabindex="-1" aria-labelledby="editarModalLabel{{ book['_id'] }}" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="{{ url_for('editar_libro', book_id=book['_id']) }}" method="POST">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editarModalLabel{{ book['_id'] }}">Editar Libro</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="title{{ book['_id'] }}" class="form-label">Título</label>
+                        <input type="text" class="form-control" id="title{{ book['_id'] }}" name="title" value="{{ book['title'] }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="author{{ book['_id'] }}" class="form-label">Autor</label>
+                        <input type="text" class="form-control" id="author{{ book['_id'] }}" name="author" value="{{ book['author'] }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="genre{{ book['_id'] }}" class="form-label">Género</label>
+                        <input type="text" class="form-control" id="genre{{ book['_id'] }}" name="genre" value="{{ book['genre'] }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="stock{{ book['_id'] }}" class="form-label">Stock</label>
+                        <input type="number" class="form-control" id="stock{{ book['_id'] }}" name="stock" value="{{ book['stock'] }}" min="0" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+

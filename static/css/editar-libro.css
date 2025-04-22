@@ -113,3 +113,170 @@
     width: 48%;
   }
   
+
+  /* Fondo del modal */
+.modal-content {
+    background: rgba(0, 0, 0, 0.85);
+    color: #fff;
+    border-radius: 20px;
+    border: none;
+    padding: 20px;
+  }
+  
+  /* Cabecera del modal */
+  .modal-header {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  }
+  
+  /* Título del modal */
+  .modal-title {
+    font-weight: bold;
+    font-size: 20px;
+  }
+  
+  /* Campos del formulario */
+  .modal-body .form-control {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 12px;
+    margin-bottom: 15px;
+  }
+  
+  .modal-body .form-control::placeholder {
+    color: #ccc;
+  }
+  
+  .modal-body .form-control:focus {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: #fff;
+    outline: none;
+    box-shadow: none;
+  }
+  
+  /* Botones del modal */
+  .modal-footer .btn {
+    border-radius: 30px;
+    padding: 10px 20px;
+    font-weight: 500;
+  }
+  
+  .modal-footer .btn-primary {
+    background-color: #007bff;
+    border: none;
+  }
+  
+  .modal-footer .btn-danger {
+    background-color: #dc3545;
+    border: none;
+  }
+  
+  /* Mensajes Flash (alertas) */
+  .alert {
+    border-radius: 10px;
+    margin-top: 15px;
+    font-size: 15px;
+    padding: 10px 15px;
+  }
+  
+  .alert-success {
+    background-color: rgba(40, 167, 69, 0.2);
+    color: #28a745;
+    border: 1px solid #28a745;
+  }
+  
+  .alert-error,
+  .alert-danger {
+    background-color: rgba(220, 53, 69, 0.2);
+    color: #dc3545;
+    border: 1px solid #dc3545;
+  }
+  
+  /* Responsive */
+  @media (max-width: 576px) {
+    .modal-content {
+      padding: 15px;
+    }
+  
+    .modal-title {
+      font-size: 18px;
+    }
+  }
+  .navbar a {
+    color: #fff;
+    font-size: 18px;
+    text-decoration: none;
+    margin-left: 35px;
+    transition: .3s;
+}
+
+.navbar .btn {
+    margin-left: 30px; /* Aquí ajustas el espacio entre el botón y el nav */
+}
+
+.navbar a:hover {
+    color: #0ef;
+}
+
+
+/* Añadir un botón de menú para pantallas pequeñas */
+.navbar-toggle {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  flex-direction: column;
+  padding: 10px;
+  justify-content: center;
+  align-items: center;
+  z-index: 1001; /* Asegúrate de que esté encima de los demás elementos */
+}
+
+.navbar-icon {
+  width: 30px;
+  height: 4px;
+  background-color: #fff;
+  margin: 5px 0;
+}
+
+/* Hacer el navbar responsive */
+@media (max-width: 768px) {
+  /* Escondemos los enlaces en pantallas pequeñas */
+  .navbar {
+      display: none;
+      flex-direction: column;
+      width: 100%;
+      text-align: center;
+      margin-top: 10px;
+      padding: 20px;
+      background-color: rgba(0, 0, 0, 0.8); /* Fondo oscuro para mejor contraste */
+  }
+
+  .navbar a {
+      margin-left: 0;
+      margin-top: 15px;
+      font-size: 20px;
+  }
+
+  /* Mostramos el botón de menú */
+  .navbar-toggle {
+      display: flex;
+  }
+
+  /* Mostrar el navbar cuando se haga clic en el menú hamburguesa */
+  .navbar.open {
+      display: flex;  /* Hace visible el navbar */
+      transition: all 0.3s ease-in-out;
+  }
+}
+
+.content {
+  padding-top: 160px; /* Ajusta el contenido para que no se solape con el header fijo */
+}
+
+.card {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  border-radius: 15px;
+  backdrop-filter: blur(5px);
+}
