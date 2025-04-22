@@ -92,8 +92,6 @@ def register():
 
 
 
-
-
 # Ruta del dashboard de admin
 @app.route('/admin_dashboard')
 def admin_dashboard():
@@ -147,7 +145,7 @@ def delete_book(book_id):
     if 'username' not in session or session['role'] != 'admin':
         return redirect(url_for('home'))
 
-    mongo.db.books.delete_one({'_id': ObjectId(book_id)})  # ✅ corrección aquí
+    mongo.db.books.delete_one({'_id': ObjectId(book_id)})  
     flash('Libro eliminado con éxito', 'success')
     return redirect(url_for('admin_dashboard'))
 
@@ -158,7 +156,7 @@ def borrow_book(book_id):
         return redirect(url_for('home'))
 
     user = mongo.db.users.find_one({'username': session['username']})
-    book = mongo.db.books.find_one({'_id': ObjectId(book_id)})  # ✅ corrección aquí
+    book = mongo.db.books.find_one({'_id': ObjectId(book_id)})  
 
     # Lógica para alquilar el libro
     if book and user:
