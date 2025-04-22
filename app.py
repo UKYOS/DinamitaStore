@@ -6,20 +6,28 @@ from bson.objectid import ObjectId
 from google.cloud import storage
 from google.oauth2 import service_account
 from werkzeug.utils import secure_filename
-
+import json
 import os
 
-# Cargar variables de entorno
+# Cargar variables del archivo .env (solo aplica en entorno local)
 load_dotenv()
 
+# Obtener variables de entorno
 credentials_path = os.getenv('GOOGLE_APPLICATION_CREDENTIALS')
 project_id = os.getenv('GCP_PROJECT_ID')
 bucket_name = os.getenv('GCP_BUCKET_NAME')
 
-credentials = service_account.Credentials.from_service_account_file(credentials_path)
+# Determinar método de autenticación
+if credentials_path:
+    # ✅ Local: con archivo JSON
+    credentials = service_account.Credentials.from_service_account_file(credentials_path)
+else:
+    # ✅ Render: con variable de entorno JSON
+    credentials_info = json.loads(os.getenv('GCP_CREDENTIALS_JSON'))
+    credentials = service_account.Credentials.from_service_account_info(credentials_info)
+
+# Crear el cliente de almacenamiento
 client = storage.Client(credentials=credentials, project=project_id)
-
-
 # Crear la app y configurar la base de datos
 app = Flask(__name__)
 app.config["MONGO_URI"] = os.getenv("MONGO_URI")
