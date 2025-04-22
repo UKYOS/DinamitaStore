@@ -1,0 +1,136 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+  }
+  body {
+    min-height: 100vh;
+    background-image: url('/static/img/background.jpg');
+    background-size: cover;
+    background-position: center;
+    color: #fff;
+  }
+  .header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 20px 100px;
+    background: rgba(255, 255, 255, .1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    backdrop-filter: blur(10px);
+    border-bottom: 2px solid rgba(255, 255, 255, .2);
+    z-index: 1000;
+  }
+  .header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .4), transparent);
+    transition: .5s;
+  }
+  .header:hover::before {
+    left: 100%;
+  }
+  .logo {
+    color: #fff;
+    font-size: 25px;
+    text-decoration: none;
+    font-weight: 600;
+  }
+  .navbar a {
+    color: #fff;
+    font-size: 18px;
+    text-decoration: none;
+    margin-left: 35px;
+    transition: .3s;
+  }
+  .navbar a:hover {
+    color: #0ef;
+  }
+
+  .content {
+    padding-top: 150px;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  .form-control {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+  }
+
+  .form-control::placeholder {
+    color: #ccc;
+  }
+
+  .form-control:focus {
+    background-color: rgba(255, 255, 255, 0.15);
+    color: #fff;
+  }
+
+  .btn-danger {
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 30px;
+  }
+
+  #preview {
+    display: none;
+    margin-top: 15px;
+    max-height: 200px;
+    border-radius: 10px;
+  }
+
+  footer {
+    margin-top: 100px;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.3);
+    text-align: center;
+    color: #fff;
+  }
+
+  /* Estilo base para todas las alertas */
+.alert {
+    padding: 15px 20px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    color: #fff;
+    font-weight: bold;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    opacity: 1;
+    transition: opacity 0.5s ease-out;
+  }
+  
+  /* Alertas según la categoría */
+  .alert-success {
+    background-color: #28a745;
+  }
+  
+  .alert-error {
+    background-color: #dc3545;
+  }
+  
+  .alert-warning {
+    background-color: #ffc107;
+    color: #000;
+  }
+  
+  .alert-info {
+    background-color: #17a2b8;
+  }
+  
+  /* Contenedor interno */
+  .alert-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  

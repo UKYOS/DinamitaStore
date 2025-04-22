@@ -1,0 +1,115 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+  }
+  body {
+    min-height: 100vh;
+    background-image: url('/static/img/background.jpg');
+    background-size: cover;
+    background-position: center;
+    color: #fff;
+  }
+  .header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 20px 100px;
+    background: rgba(255, 255, 255, .1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    backdrop-filter: blur(10px);
+    border-bottom: 2px solid rgba(255, 255, 255, .2);
+    z-index: 1000;
+  }
+  .header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .4), transparent);
+    transition: .5s;
+  }
+  .header:hover::before {
+    left: 100%;
+  }
+  .logo {
+    color: #fff;
+    font-size: 25px;
+    text-decoration: none;
+    font-weight: 600;
+  }
+  .navbar a {
+    color: #fff;
+    font-size: 18px;
+    text-decoration: none;
+    margin-left: 35px;
+    transition: .3s;
+  }
+  .navbar a:hover {
+    color: #0ef;
+  }
+
+  .content {
+    padding-top: 150px;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+/* Contenedor general más amplio */
+.container {
+    max-width: 1200px;
+    padding-top: 150px;
+    margin: 0 auto;
+  }
+  
+  /* Estilo para las tarjetas */
+  .card {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    overflow: hidden;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.2s ease;
+  }
+  
+  .card:hover {
+    transform: scale(1.02);
+  }
+  
+  /* Imagen de libro dentro de tarjeta */
+  .card-img-top {
+    height: 200px;
+    object-fit: cover;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  /* Títulos largos con truncamiento elegante */
+  .card-title {
+    font-size: 1.1rem;
+    font-weight: bold;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  /* Botones más cómodos */
+  .btn-sm {
+    padding: 8px 12px;
+    font-size: 14px;
+    border-radius: 20px;
+  }
+  
+  .w-45 {
+    width: 48%;
+  }
+  
