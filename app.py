@@ -1,3 +1,4 @@
+
 from flask import Flask, render_template, redirect, url_for, request, session, flash
 from flask_pymongo import PyMongo
 from flask_bcrypt import Bcrypt
@@ -8,6 +9,7 @@ from google.oauth2 import service_account
 from werkzeug.utils import secure_filename
 import json
 import os
+from datetime import datetime
 from functools import wraps
 
 # Cargar variables del archivo .env (solo aplica en entorno local)
@@ -72,6 +74,7 @@ def login():
         if bcrypt.check_password_hash(user['password'], password):
             session['username'] = user['username']
             session['role'] = user['role']  # 'admin' o 'user'
+            session['user_id'] = str(user['_id']) 
             
             # Redirigir según el rol del usuario
             if user['role'] == 'admin':
@@ -82,10 +85,10 @@ def login():
             flash('Contraseña incorrecta, por favor intente de nuevo', 'error')
             return redirect(url_for('home'))
     else:
-        # Si el usuario no existe, mostrar un mensaje de error
+
         flash('El nombre de usuario no existe', 'error')
         return redirect(url_for('home'))
-    
+
 
 # Rutas de comprobación del registro
 @app.route('/register', methods=['POST'])
@@ -164,6 +167,69 @@ def user_dashboard():
     borrowed_books = list(mongo.db.books.find({'borrowed_by': session['username']}))
 
     return render_template('user_dashboard.html', books=books, borrowed_books=borrowed_books)
+
+@app.route('/home-user')
+@login_required
+def home_user():
+    if session.get('role') != 'user':
+        return redirect(url_for('home_admin'))
+    return render_template('user_dashboard.html')  # Este es tu HTML con el mensaje de "Hola, lector"
+
+@app.route('/catalogo_user')
+@login_required
+def catalogo_user():
+    if session.get('role') != 'user':
+        return redirect(url_for('home_admin'))
+    # Aquí puedes cargar libros desde MongoDB si quieres mostrarlos
+    libros = list(mongo.db.books.find())
+    return render_template('catalago-user.html', libros=libros)
+
+from datetime import datetime
+from bson.objectid import ObjectId
+
+@app.route('/comprar/<book_id>', methods=['POST'])
+@login_required
+def comprar_libro(book_id):
+    if session.get('role') != 'user':
+        return redirect(url_for('home_admin'))
+
+    libro = mongo.db.books.find_one({'_id': ObjectId(book_id)})
+
+    if libro and libro['stock'] > 0:
+        # Descuenta stock
+        mongo.db.books.update_one(
+            {'_id': ObjectId(book_id)},
+            {'$inc': {'stock': -1}}
+        )
+
+        # Guarda la compra en la colección "purchases"
+        mongo.db.purchases.insert_one({
+            'user_id': session['user_id'],
+            'username': session['username'],
+            'book_title': libro['title'],
+            'book_author': libro['author'],
+            'date': datetime.now().strftime('%Y-%m-%d %H:%M')
+        })
+
+        flash(f'¡Has comprado "{libro["title"]}" con éxito! 🎉', 'success')
+    else:
+        flash('El libro no tiene stock disponible 😢', 'danger')
+
+    return redirect(url_for('catalogo_user'))
+
+
+@app.route('/reservas')
+@login_required
+def usuario_reservas():
+    if session.get('role') != 'user':
+        return redirect(url_for('home_admin'))
+
+    compras = list(mongo.db.purchases.find({'user_id': session['user_id']}))
+    return render_template('usuario-reservas.html', compras=compras)
+
+
+
+
 
 
 # Cerrar sesión

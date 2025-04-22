@@ -1,53 +1,136 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Usuario - DinamitaStore</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <title>Dinámita Store</title>
-   
+  <meta charset="UTF-8">
+  <title>Librent</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
+
+
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style-usuarios.css') }}">
+
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+    body {
+      min-height: 100vh;
+      background-image: url('/static/img/background.jpg');
+      background-size: cover;
+      background-position: center;
+      color: #fff;
+    }
+    .header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      padding: 20px 100px;
+      background: rgba(255, 255, 255, .1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      backdrop-filter: blur(10px);
+      border-bottom: 2px solid rgba(255, 255, 255, .2);
+      z-index: 1000;
+    }
+    .header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .4), transparent);
+      transition: .5s;
+    }
+    .header:hover::before {
+      left: 100%;
+    }
+    .logo {
+      color: #fff;
+      font-size: 25px;
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .navbar a {
+      color: #fff;
+      font-size: 18px;
+      text-decoration: none;
+      margin-left: 35px;
+      transition: .3s;
+    }
+    .navbar a:hover {
+      color: #0ef;
+    }
+
+    .navbar .btn {
+      margin-left: 30px; /* Aquí ajustas el espacio entre el botón y el nav */
+    }
+    .hero {
+      padding-top: 180px;
+      text-align: center;
+    }
+    .hero h1 {
+      font-size: 48px;
+      font-weight: 700;
+    }
+    .hero p {
+      font-size: 20px;
+      margin-bottom: 30px;
+    }
+    .btn-danger {
+      padding: 10px 30px;
+      font-size: 18px;
+      border-radius: 50px;
+    }
+    footer {
+      margin-top: 100px;
+      padding: 20px;
+      background: rgba(0, 0, 0, 0.3);
+      text-align: center;
+      color: #fff;
+    }
+  </style>
 </head>
 <body>
-    <div class="dashboard-container">
-        <h2>Bienvenido, {{ session['username'] }} (Usuario)</h2>
-        <h3>Lista de libros disponibles:</h3>
-        <ul id="book-list">
-            <!-- Aquí se mostrarán los libros disponibles en la base de datos -->
-        </ul>
-        <button><a href="/logout">Cerrar sesión</a></button>
-    </div>
 
-    <ul>
-        {% for book in books %}
-        <li>
-            <strong>{{ book.title }}</strong> por {{ book.author }} - {{ book.genre }}
-            <br>
-            Estado: <span style="color: {{ 'green' if book.status == 'available' else 'red' }}">
-                {{ 'Disponible' if book.status == 'available' else 'Alquilado por ' ~ book.borrowed_by }}
-            </span>
-            <br>
-            <form action="/borrow_book/{{ book._id }}" method="POST" style="display:inline;">
-                <button type="submit" {% if book.status != 'available' %}disabled{% endif %}>Alquilar</button>
-            </form>
-        </li>
-        {% endfor %}
+    <header class="header">
+        <a href="{{ url_for('home_user') }}" class="logo d-flex align-items-center">
+          <img src="{{ url_for('static', filename='img/Librent.png') }}" alt="Logo Librent" style="height: 40px; margin-right: 10px;">
+          Librent Usuario
+        </a>
+        <nav class="navbar">
+          <nav class="navbar">
+            <a href="{{ url_for('catalogo_user') }}">Catálogo</a>
+            <a href="{{ url_for('usuario_reservas') }}">Mis Reservas</a>
+            <form action="{{ url_for('logout') }}" method="POST" style="display: inline;">
+                <button type="submit" class="btn btn-danger btn-sm px-3 py-2 rounded-3 text-white border-0">
+                    Cerrar sesión
+                </button>
+            </form>   
+          </nav>
+        </nav>
+      </header>
 
-    </ul>
-    <h3>Libros que has alquilado:</h3>
-<ul>
-    {% for book in borrowed_books %}
-    <li>
-        <strong>{{ book.title }}</strong> por {{ book.author }}
-    </li>
-    {% endfor %}
-</ul>
+  <section class="hero container">
+    <h1>¡Hola, lector!</h1>
+    <p>Accede a tu catálogo favorito y gestiona tus reservas.</p>
+    <a href="{{ url_for('home_user') }}" class="btn btn-danger">Ir al Catálogo</a>
+  </section>
 
-<form action="/logout" method="POST">
-    <button type="submit">Cerrar sesión</button>
-</form>
+  <footer>
+    <p>&copy; 2025 Librent. Todos los derechos reservados.</p>
+  </footer>
 
-
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
