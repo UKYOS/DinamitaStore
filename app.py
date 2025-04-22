@@ -3,11 +3,21 @@ from flask_pymongo import PyMongo
 from flask_bcrypt import Bcrypt
 from dotenv import load_dotenv
 from bson.objectid import ObjectId  
+from google.cloud import storage
+from google.oauth2 import service_account
+from werkzeug.utils import secure_filename
+
 import os
 
 # Cargar variables de entorno
 load_dotenv()
 
+credentials_path = os.getenv('GOOGLE_APPLICATION_CREDENTIALS')
+project_id = os.getenv('GCP_PROJECT_ID')
+bucket_name = os.getenv('GCP_BUCKET_NAME')
+
+credentials = service_account.Credentials.from_service_account_file(credentials_path)
+client = storage.Client(credentials=credentials, project=project_id)
 
 
 # Crear la app y configurar la base de datos
@@ -99,6 +109,26 @@ def admin_dashboard():
         return redirect(url_for('home'))
     return render_template('admin_dashboard.html')
 
+
+# Rutas del dashboard de admin
+
+@app.route('/home-admin')
+def home_admin():
+    return render_template('admin_dashboard.html')
+
+@app.route('/registrar-libro')
+def registrar_libro():
+    return render_template('registrar-libro.html')
+
+@app.route('/editar-libros')
+def editar_libros():
+    if 'username' not in session or session.get('role') != 'admin':
+        return redirect(url_for('home'))
+
+    books = list(mongo.db.books.find())
+    return render_template('editar-libro.html', books=books)
+
+
 # Ruta del dashboard de usuario
 @app.route('/user_dashboard')
 def user_dashboard():
@@ -118,36 +148,115 @@ def logout():
     return redirect(url_for('home'))
 
 # Agregar libro (admin)
+
+def upload_image_to_gcs(file, title, author):
+    bucket = client.bucket(bucket_name)
+    
+    # Renombramos el archivo con el nombre del libro y autor, separados por un guión
+    unique_filename = f"{secure_filename(title)}_{secure_filename(author)}.jpg"
+    
+    blob = bucket.blob(unique_filename)
+    blob.upload_from_file(file, content_type=file.content_type)
+    blob.make_public()
+    
+    return blob.public_url
+
+
+
 @app.route('/add_book', methods=['POST'])
 def add_book():
-    if 'username' not in session or session['role'] != 'admin':
+    if 'username' not in session or session.get('role') != 'admin':
         return redirect(url_for('home'))
 
     title = request.form.get('title')
     author = request.form.get('author')
     genre = request.form.get('genre')
+    stock = int(request.form.get('stock'))
 
-    # Insertar el libro en la base de datos
-    mongo.db.books.insert_one({
-        'title': title,
-        'author': author,
-        'genre': genre,
-        'status': 'available',
-        'borrowed_by': None
-    })
+    # Verificar si ya existe un libro con el mismo título y autor
+    existing_book = mongo.db.books.find_one({'title': title, 'author': author})
+    if existing_book:
+        flash('Ya existe un libro con ese título y autor 📚', 'error')
+        books = list(mongo.db.books.find())
+        return render_template('registrar-libro.html', books=books)
 
-    flash('Libro agregado con éxito', 'success')
-    return redirect(url_for('admin_dashboard'))
+    image = request.files.get('image')
+    if image and image.filename != '':
+        filename = secure_filename(image.filename)
+        image_url = upload_image_to_gcs(image, title, author)  # Ahora se pasa title y author
 
-# Eliminar libro (admin)
-@app.route('/delete_book/<book_id>', methods=['POST'])
-def delete_book(book_id):
-    if 'username' not in session or session['role'] != 'admin':
+        mongo.db.books.insert_one({
+            'title': title,
+            'author': author,
+            'genre': genre,
+            'stock': stock,
+            'status': 'available',
+            'borrowed_by': None,
+            'image_url': image_url
+        })
+
+        flash('Libro registrado con éxito 🎉', 'success')
+    else:
+        flash('Por favor, sube una imagen válida del libro', 'error')
+
+    books = list(mongo.db.books.find())
+    return render_template('registrar-libro.html', books=books)
+
+
+#Editar libros
+
+@app.route('/mostrar_libros_admin', methods=['GET'])
+def mostrar_libros_admin():  # <-- Este nombre debe ser único
+    if 'username' not in session or session.get('role') != 'admin':
         return redirect(url_for('home'))
 
-    mongo.db.books.delete_one({'_id': ObjectId(book_id)})  
-    flash('Libro eliminado con éxito', 'success')
-    return redirect(url_for('admin_dashboard'))
+    books = mongo.db.books.find()
+    return render_template('editar-libros.html', books=books)
+
+
+@app.route('/editar_libro/<book_id>', methods=['GET', 'POST'])
+def editar_libro(book_id):
+    if 'username' not in session or session.get('role') != 'admin':
+        return redirect(url_for('home'))
+    
+    book = mongo.db.books.find_one({'_id': ObjectId(book_id)})
+    if request.method == 'POST':
+        title = request.form.get('title')
+        author = request.form.get('author')
+        genre = request.form.get('genre')
+        stock = int(request.form.get('stock'))
+        
+        # Verificar si el libro con el mismo título y autor ya existe
+        existing_book = mongo.db.books.find_one({'title': title, 'author': author})
+        if existing_book and str(existing_book['_id']) != book_id:
+            flash('Ya existe un libro con ese título y autor 📚', 'error')
+            return redirect(url_for('editar_libro', book_id=book_id))
+
+        mongo.db.books.update_one(
+            {'_id': ObjectId(book_id)},
+            {'$set': {
+                'title': title,
+                'author': author,
+                'genre': genre,
+                'stock': stock
+            }}
+        )
+
+        flash('Libro actualizado con éxito 🎉', 'success')
+        return redirect(url_for('editar_libros'))
+    
+    return render_template('editar-libro-form.html', book=book)
+
+# Eliminar libro 
+@app.route('/eliminar_libro/<book_id>', methods=['GET'])
+def eliminar_libro(book_id):
+    if 'username' not in session or session.get('role') != 'admin':
+        return redirect(url_for('home'))
+
+    mongo.db.books.delete_one({'_id': ObjectId(book_id)})
+    flash('Libro eliminado correctamente ❌', 'success')
+    return redirect(url_for('editar_libros'))
+
 
 # Alquilar libro (usuario)
 @app.route('/borrow_book/<book_id>', methods=['POST'])
